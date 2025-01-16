@@ -85,6 +85,8 @@ def generate_quote_pdf(quote):
             img = Image(logo_path)
             img.drawHeight = 50
             img.drawWidth = 100
+            img._offs_x = 0  # Align to left
+            img._offs_y = 0  # Align to top
             elements.append(img)
             elements.append(Spacer(1, 10))
     

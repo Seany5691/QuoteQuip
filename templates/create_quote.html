@@ -7,13 +7,21 @@
     <h2>Create Quote</h2>
     <form method="POST" id="quoteForm">
         <!-- Company Selection -->
-        <div class="mb-4">
+        <div class="mb-3">
             <label for="company_id" class="form-label">Select Company</label>
             <select class="form-select" id="company_id" name="company_id" required>
-                <option value="">Select a company</option>
+                <option value="">Choose a company...</option>
                 {% for company in companies %}
-                <option value="{{ company.id }}">{{ company.company_name }}</option>
+                <option value="{{ company.id }}">{{ company.name }}</option>
                 {% endfor %}
+            </select>
+        </div>
+
+        <!-- Previous Recipients -->
+        <div class="mb-3">
+            <label for="previous_recipients" class="form-label">Previous Recipients</label>
+            <select class="form-select" id="previous_recipients">
+                <option value="">Choose a previous recipient...</option>
             </select>
         </div>
 
@@ -25,7 +33,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="to_name" class="form-label">Client Name</label>
+                        <label for="to_name" class="form-label">To (Company Name)</label>
                         <input type="text" class="form-control" id="to_name" name="to_name" required>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -163,6 +171,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make addItem function globally available
     window.addItem = addItem;
+});
+
+document.getElementById('company_id').addEventListener('change', function() {
+    const companyId = this.value;
+    if (companyId) {
+        fetch(`/get_previous_recipients/${companyId}`)
+            .then(response => response.json())
+            .then(recipients => {
+                const select = document.getElementById('previous_recipients');
+                select.innerHTML = '<option value="">Choose a previous recipient...</option>';
+                recipients.forEach(recipient => {
+                    select.innerHTML += `<option value="${JSON.stringify(recipient)}">${recipient.to_name}</option>`;
+                });
+            });
+    }
+});
+
+document.getElementById('previous_recipients').addEventListener('change', function() {
+    const recipient = JSON.parse(this.value || '{}');
+    if (recipient.to_name) {
+        document.getElementById('to_name').value = recipient.to_name || '';
+        document.getElementById('to_registration_number').value = recipient.to_registration_number || '';
+        document.getElementById('to_vat_number').value = recipient.to_vat_number || '';
+        document.getElementById('to_email').value = recipient.to_email || '';
+        document.getElementById('to_address').value = recipient.to_address || '';
+    }
 });
 </script>
 {% endblock %}

@@ -376,5 +376,28 @@ def download_invoice_pdf(invoice_id):
         download_name=f"invoice_{invoice.invoice_number}.pdf"
     )
 
+@app.route('/get_previous_recipients/<int:company_id>')
+def get_previous_recipients(company_id):
+    # Get unique recipients from previous quotes
+    previous_recipients = db.session.query(
+        Quote.to_name,
+        Quote.to_registration_number,
+        Quote.to_vat_number,
+        Quote.to_email,
+        Quote.to_address
+    ).filter(
+        Quote.company_id == company_id
+    ).distinct().all()
+    
+    recipients = [{
+        'to_name': r.to_name,
+        'to_registration_number': r.to_registration_number,
+        'to_vat_number': r.to_vat_number,
+        'to_email': r.to_email,
+        'to_address': r.to_address
+    } for r in previous_recipients]
+    
+    return jsonify(recipients)
+
 if __name__ == '__main__':
     app.run(debug=True)
