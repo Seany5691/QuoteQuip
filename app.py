@@ -35,7 +35,8 @@ def generate_quote_number(company_id):
     
     if latest_quote:
         # Extract the number part and increment it
-        last_number = int(latest_quote.quote_number.split('-')[1])
+        # Split by '-' and get the last part (the sequence number)
+        last_number = int(latest_quote.quote_number.split('-')[2])
         new_number = last_number + 1
     else:
         new_number = 1
@@ -49,7 +50,8 @@ def generate_invoice_number(company_id):
     
     if latest_invoice:
         # Extract the number part and increment it
-        last_number = int(latest_invoice.invoice_number.split('-')[1])
+        # Split by '-' and get the last part (the sequence number)
+        last_number = int(latest_invoice.invoice_number.split('-')[2])
         new_number = last_number + 1
     else:
         new_number = 1

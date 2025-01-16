@@ -19,7 +19,7 @@ class Company(db.Model):
 
 class Quote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    quote_number = db.Column(db.String(50), unique=True, nullable=False)
+    quote_number = db.Column(db.String(50), unique=False)  
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     valid_until = db.Column(db.DateTime, nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
@@ -32,6 +32,8 @@ class Quote(db.Model):
     subtotal = db.Column(db.Float, nullable=False, default=0.0)
     vat_amount = db.Column(db.Float, nullable=False, default=0.0)
     total = db.Column(db.Float, nullable=False, default=0.0)
+    
+    __table_args__ = (db.UniqueConstraint('company_id', 'quote_number', name='unique_quote_number_per_company'),)
 
 class QuoteItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,7 +46,7 @@ class QuoteItem(db.Model):
 
 class Invoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    invoice_number = db.Column(db.String(50), unique=True, nullable=False)
+    invoice_number = db.Column(db.String(50), unique=False)  
     date = db.Column(db.Date, nullable=False)
     due_date = db.Column(db.Date, nullable=False)
     invoice_date = db.Column(db.Date, nullable=False, default=datetime.utcnow().date())
@@ -61,6 +63,8 @@ class Invoice(db.Model):
     paid = db.Column(db.Boolean, default=False)
     quote_id = db.Column(db.Integer, db.ForeignKey('quote.id'), unique=True)
     quote = db.relationship('Quote', backref=db.backref('invoice', uselist=False))
+    
+    __table_args__ = (db.UniqueConstraint('company_id', 'invoice_number', name='unique_invoice_number_per_company'),)
 
 class InvoiceItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
