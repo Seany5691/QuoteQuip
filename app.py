@@ -31,29 +31,31 @@ with app.app_context():
 
 def generate_quote_number(company_id):
     # Get the latest quote number for this company
-    latest_quote = Quote.query.filter_by(company_id=company_id).order_by(Quote.id.desc()).first()
+    latest_quote = Quote.query.filter_by(company_id=company_id).order_by(Quote.quote_number.desc()).first()
     
     if latest_quote:
-        # Extract the number from the latest quote number
-        latest_num = int(latest_quote.quote_number.split('-')[1])
-        new_num = latest_num + 1
+        # Extract the number part and increment it
+        last_number = int(latest_quote.quote_number.split('-')[1])
+        new_number = last_number + 1
     else:
-        new_num = 1
+        new_number = 1
     
-    return f"QTE-{new_num:04d}"
+    # Format with leading zeros
+    return f"QTE-{company_id:02d}-{new_number:04d}"
 
 def generate_invoice_number(company_id):
     # Get the latest invoice number for this company
-    latest_invoice = Invoice.query.filter_by(company_id=company_id).order_by(Invoice.id.desc()).first()
+    latest_invoice = Invoice.query.filter_by(company_id=company_id).order_by(Invoice.invoice_number.desc()).first()
     
     if latest_invoice:
-        # Extract the number from the latest invoice number
-        latest_num = int(latest_invoice.invoice_number.split('-')[1])
-        new_num = latest_num + 1
+        # Extract the number part and increment it
+        last_number = int(latest_invoice.invoice_number.split('-')[1])
+        new_number = last_number + 1
     else:
-        new_num = 1
+        new_number = 1
     
-    return f"INV-{new_num:04d}"
+    # Format with leading zeros
+    return f"INV-{company_id:02d}-{new_number:04d}"
 
 @app.route('/')
 def index():
