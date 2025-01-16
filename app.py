@@ -307,22 +307,38 @@ Account Type: {request.form['bank_account_type']}"""
 
 @app.route('/delete_company/<int:company_id>', methods=['POST'])
 def delete_company(company_id):
-    company = Company.query.get_or_404(company_id)
     try:
-        # Delete company logo if it exists
-        if company.logo:
-            logo_path = os.path.join(app.config['UPLOAD_FOLDER'], company.logo)
-            if os.path.exists(logo_path):
-                os.remove(logo_path)
+        company = Company.query.get_or_404(company_id)
         
-        # Delete the company
+        # Delete all associated quotes and their items
+        quotes = Quote.query.filter_by(company_id=company_id).all()
+        for quote in quotes:
+            # Delete quote items
+            QuoteItem.query.filter_by(quote_id=quote.id).delete()
+            # Delete associated invoice items if any
+            if hasattr(quote, 'invoice') and quote.invoice:
+                InvoiceItem.query.filter_by(invoice_id=quote.invoice.id).delete()
+                # Delete the invoice
+                db.session.delete(quote.invoice)
+            # Delete the quote
+            db.session.delete(quote)
+        
+        # Delete any remaining invoices
+        invoices = Invoice.query.filter_by(company_id=company_id).all()
+        for invoice in invoices:
+            InvoiceItem.query.filter_by(invoice_id=invoice.id).delete()
+            db.session.delete(invoice)
+        
+        # Finally delete the company
         db.session.delete(company)
         db.session.commit()
+        
         flash('Company deleted successfully!', 'success')
+        return redirect(url_for('index'))
     except Exception as e:
+        db.session.rollback()
         flash(f'Error deleting company: {str(e)}', 'error')
-    
-    return redirect(url_for('index'))
+        return redirect(url_for('index'))
 
 @app.route('/download_quote_pdf/<int:quote_id>')
 def download_quote_pdf(quote_id):
