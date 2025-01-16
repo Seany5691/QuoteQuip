@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Company</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="company_name" class="form-label">Company Name</label>
+            <input type="text" class="form-control" id="company_name" name="company_name" value="{{ company.company_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="registration_number" class="form-label">Registration Number</label>
+            <input type="text" class="form-control" id="registration_number" name="registration_number" value="{{ company.registration_number }}">
+        </div>
+        <div class="mb-3">
+            <label for="vat_number" class="form-label">VAT Number</label>
+            <input type="text" class="form-control" id="vat_number" name="vat_number" value="{{ company.vat_number }}">
+        </div>
+        <div class="mb-3">
+            <label for="telephone" class="form-label">Telephone</label>
+            <input type="tel" class="form-control" id="telephone" name="telephone" value="{{ company.telephone }}">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ company.email }}">
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address" rows="3">{{ company.address }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="logo" class="form-label">Logo</label>
+            {% if company.logo %}
+            <div class="mb-2">
+                <img src="{{ url_for('static', filename='uploads/' + company.logo) }}" alt="Company Logo" style="max-height: 100px;">
+            </div>
+            {% endif %}
+            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+        </div>
+        <div class="mb-3">
+            <label for="bank_name" class="form-label">Bank Name</label>
+            <input type="text" class="form-control" id="bank_name" name="bank_name" value="{{ bank_details.bank_name if bank_details else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="bank_account_number" class="form-label">Account Number</label>
+            <input type="text" class="form-control" id="bank_account_number" name="bank_account_number" value="{{ bank_details.account_number if bank_details else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="bank_branch_code" class="form-label">Branch Code</label>
+            <input type="text" class="form-control" id="bank_branch_code" name="bank_branch_code" value="{{ bank_details.branch_code if bank_details else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="bank_account_type" class="form-label">Account Type</label>
+            <input type="text" class="form-control" id="bank_account_type" name="bank_account_type" value="{{ bank_details.account_type if bank_details else '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Update Company</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

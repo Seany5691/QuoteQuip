@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice #{{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    {% if invoice.quote.company.logo %}
+                    <img src="{{ url_for('static', filename='uploads/' + invoice.quote.company.logo) }}" alt="Company Logo" class="mb-3" style="max-height: 100px;">
+                    {% endif %}
+                    <h4>{{ invoice.quote.company.company_name }}</h4>
+                    <p>Registration: {{ invoice.quote.company.registration_number }}<br>
+                       VAT: {{ invoice.quote.company.vat_number }}<br>
+                       Tel: {{ invoice.quote.company.telephone }}<br>
+                       Email: {{ invoice.quote.company.email }}</p>
+                </div>
+                <div class="text-end">
+                    <h2>INVOICE</h2>
+                    <p>Invoice #: {{ invoice.invoice_number }}<br>
+                       Date: {{ invoice.date.strftime('%d %B %Y') }}<br>
+                       Due Date: {{ invoice.due_date.strftime('%d %B %Y') }}<br>
+                       Quote Reference: {{ invoice.quote.quote_number }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5>Bill To:</h5>
+            <p>{{ invoice.to_name }}<br>
+               Registration: {{ invoice.to_registration_number }}<br>
+               {% if invoice.to_vat_number %}VAT: {{ invoice.to_vat_number }}<br>{% endif %}
+               {{ invoice.to_address }}<br>
+               Email: {{ invoice.to_email }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-end">Unit Price</th>
+                        <th class="text-end">Discount</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in invoice.items %}
+                    <tr>
+                        <td>{{ item.description }}</td>
+                        <td class="text-end">{{ item.quantity }}</td>
+                        <td class="text-end">R{{ "%.2f"|format(item.unit_price) }}</td>
+                        <td class="text-end">{{ "%.1f"|format(item.discount) }}%</td>
+                        <td class="text-end">R{{ "%.2f"|format(item.total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"><strong>Subtotal:</strong></td>
+                        <td class="text-end">R{{ "%.2f"|format(invoice.subtotal) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"><strong>VAT (15%):</strong></td>
+                        <td class="text-end">R{{ "%.2f"|format(invoice.vat_amount) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end"><strong>Total:</strong></td>
+                        <td class="text-end"><strong>R{{ "%.2f"|format(invoice.total) }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    {% if invoice.quote.company.bank_details %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h5>Bank Details:</h5>
+            <p>{{ invoice.quote.company.bank_details | replace('\n', '<br>') | safe }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert {% if invoice.paid %}alert-success{% else %}alert-warning{% endif %}">
+                <strong>Status:</strong> {% if invoice.paid %}PAID{% else %}UNPAID{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{{ url_for('download_invoice_pdf', invoice_id=invoice.id) }}" class="btn btn-primary">Download PDF</a>
+            {% if not invoice.paid %}
+            <form action="{{ url_for('mark_invoice_paid', invoice_id=invoice.id) }}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-success">Mark as Paid</button>
+            </form>
+            {% endif %}
+            <a href="{{ url_for('list_invoices') }}" class="btn btn-secondary">Back to Invoices</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

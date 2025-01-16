@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create Invoice from Quote</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="invoice_date">Invoice Date:</label>
+            <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+        </div>
+        <div class="form-group">
+            <label for="due_date">Due Date:</label>
+            <input type="date" class="form-control" id="due_date" name="due_date" required>
+        </div>
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="is_vat_registered" name="is_vat_registered" {% if quote.company.is_vat_registered %}checked{% endif %}>
+            <label class="form-check-label" for="is_vat_registered">Apply 15% VAT</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Invoice</button>
+        <a href="{{ url_for('view_quote', quote_id=quote.id) }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

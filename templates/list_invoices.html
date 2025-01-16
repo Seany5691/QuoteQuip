@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Invoices</h2>
+
+    {% if not companies %}
+    <div class="alert alert-info">
+        No companies found. Please add a company first.
+    </div>
+    {% else %}
+        {% for company in companies %}
+            {% set company_invoices = invoices|selectattr('company_id', 'equalto', company.id)|list %}
+            {% if company_invoices %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ company.company_name }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice Number</th>
+                                        <th>Date</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for invoice in company_invoices %}
+                                    <tr>
+                                        <td>{{ invoice.invoice_number }}</td>
+                                        <td>{{ invoice.date.strftime('%Y-%m-%d') }}</td>
+                                        <td>R {{ "%.2f"|format(invoice.total) }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                                <a href="{{ url_for('download_invoice_pdf', invoice_id=invoice.id) }}" class="btn btn-sm btn-outline-secondary">Download PDF</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

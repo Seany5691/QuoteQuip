@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Companies</h2>
+        <a href="{{ url_for('create_company_view') }}" class="btn btn-primary">Add Company</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        {% for company in companies %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title">{{ company.company_name }}</h5>
+                        <div class="btn-group">
+                            <a href="{{ url_for('edit_company', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ company.id }}">Delete</button>
+                        </div>
+                    </div>
+                    {% if company.logo %}
+                    <img src="{{ url_for('static', filename='uploads/' + company.logo) }}" alt="Company Logo" class="img-fluid mb-2" style="max-height: 100px;">
+                    {% endif %}
+                    <p class="card-text">
+                        {% if company.registration_number %}
+                        <strong>Registration:</strong> {{ company.registration_number }}<br>
+                        {% endif %}
+                        {% if company.vat_number %}
+                        <strong>VAT:</strong> {{ company.vat_number }}<br>
+                        {% endif %}
+                        {% if company.telephone %}
+                        <strong>Tel:</strong> {{ company.telephone }}<br>
+                        {% endif %}
+                        {% if company.email %}
+                        <strong>Email:</strong> {{ company.email }}<br>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal{{ company.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ company.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel{{ company.id }}">Confirm Delete</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete {{ company.company_name }}? This action cannot be undone.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form action="{{ url_for('delete_company', company_id=company.id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
