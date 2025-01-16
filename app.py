@@ -7,25 +7,27 @@ from pdf_generator import generate_quote_pdf, generate_invoice_pdf
 import json
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quotequip.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
-# Initialize SQLAlchemy with the Flask app
+# Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///quotes.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Initialize extensions
 db.init_app(app)
 
-# Create required directories if they don't exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs(os.path.join(app.static_folder, 'temp'), exist_ok=True)
+# Ensure required directories exist
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
-# Initialize database tables
-def init_db():
-    with app.app_context():
-        db.drop_all()  # Drop all existing tables
-        db.create_all()  # Create all tables fresh
+if not os.path.exists('temp'):
+    os.makedirs('temp')
 
-init_db()
+# Initialize database
+with app.app_context():
+    db.create_all()
 
 def generate_quote_number(company_id):
     # Get the latest quote number for this company
